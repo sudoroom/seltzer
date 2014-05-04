@@ -1054,24 +1054,6 @@ function payment_delete_form ($pmtid) {
     return $form;
 }
 
-// Command handlers ////////////////////////////////////////////////////////////
-
-/**
- * Handle payment delete request.
- *
- * @return The url to display on completion.
- */
-function command_payment_delete() {
-    global $esc_post;
-    // Verify permissions
-    if (!user_access('payment_delete')) {
-        error_register('Permission denied: payment_delete');
-        return crm_url('payment&pmtid=' . $esc_post['pmtid']);
-    }
-    payment_delete($_POST['pmtid']);
-    return crm_url('payments');
-}
-
 /**
  * Return the form structure for a payment filter.
  * @return The form structure.
@@ -1152,7 +1134,7 @@ function payment_page (&$page_data, $page_name, $options) {
                     'show_export' => true
                     , 'filter' => $filter
                 );
-                $content .= theme('table', 'payment', $opts);
+                $content .= theme('table', crm_get_table('payment', $opts));
                 page_add_content_top($page_data, $content, 'View');
             }
             break;
@@ -1166,13 +1148,13 @@ function payment_page (&$page_data, $page_name, $options) {
         case 'accounts':
             page_set_title($page_data, 'Accounts');
             if (user_access('payment_view')) {
-                $content = theme('table', 'payment_accounts', array('show_export'=>true));
+                $content = theme('table', crm_get_table('payment_accounts', array('show_export'=>true)));
                 page_add_content_top($page_data, $content);
             }
             break;
         case 'contact':
             if (user_id() == $_GET['cid'] || user_access('payment_view')) {
-                $content = theme('table', 'payment_history', array('cid' => $_GET['cid']));
+                $content = theme('table', crm_get_table('payment_history', array('cid' => $_GET['cid'])));
                 page_add_content_top($page_data, $content, 'Account');
             }
             break;
@@ -1222,6 +1204,22 @@ function command_payment_edit() {
     $payment['value'] = $value['value'];
     payment_save($payment);
     message_register('1 payment updated.');
+    return crm_url('payments');
+}
+
+/**
+ * Handle payment delete request.
+ *
+ * @return The url to display on completion.
+ */
+function command_payment_delete() {
+    global $esc_post;
+    // Verify permissions
+    if (!user_access('payment_delete')) {
+        error_register('Permission denied: payment_delete');
+        return crm_url('payment&pmtid=' . $esc_post['pmtid']);
+    }
+    payment_delete($_POST['pmtid']);
     return crm_url('payments');
 }
 

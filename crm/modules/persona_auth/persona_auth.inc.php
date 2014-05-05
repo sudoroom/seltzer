@@ -89,7 +89,7 @@ function command_persona_auth_login () {
 /**
  * @return login form structure.
 */
-function persona_auth_form () {
+function persona_auth_login_form () {
     $form = array(
         'type' => 'form',
         'method' => 'post',
@@ -127,5 +127,23 @@ function persona_auth_form () {
  * @return The themed html string for a login form.
 */
 function theme_persona_auth_login_form () {
-    return theme('form', persona_auth_login_form());
+    return theme('form', crm_get_form('persona_auth_login'));
 }
+
+/**
+ * Page hook.  Adds ser module content to a page before it is rendered.
+ *
+ * @param &$page_data Reference to data about the page being rendered.
+ * @param $page_name The name of the page being rendered.
+ * @param $options The array of options passed to theme('page').
+*/
+function persona_auth_page (&$page_data, $page_name, $options) {
+
+    switch ($page_name) {
+
+        case 'login':
+            page_add_content_top($page_data, theme('form', crm_get_form('persona_auth_login')));
+            break;
+    }
+}
+

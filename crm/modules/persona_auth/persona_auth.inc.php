@@ -34,8 +34,8 @@ function persona_auth_revision () {
  * + SeltzerCRM user module, especially for user_data(), user_login(),
  *   and command_logout()
  */
-require_once('Auth/BrowserID.php')
-require_once($crm_root . '/modules/user/user.inc.php')
+require_once('Auth/BrowserID.php');
+require_once($crm_root . '/modules/user/user.inc.php');
 
 /**
  * Handle persona-based login request.
@@ -68,10 +68,10 @@ function command_persona_auth_login () {
     $result = $verifier->verifyAssertion($_POST['assertion']);
 
     if ($result->status === 'okay') {
-        $valid = true
+        $valid = true;
     }
     else {
-        $valid = false
+        $valid = false;
     }
 
     if ($valid) {
@@ -104,6 +104,7 @@ function persona_auth_form () {
                         'type' => 'hidden',
                         'name' => 'assertion',
                         'value' => ''
+                    ),
                     array(
                         'type' => 'text',
                         'label' => 'Email (your Persona ID)',

@@ -63,7 +63,7 @@ function command_persona_auth_login () {
     if (sizeof($users) < 1) {
         error_register('No user found');
         error_register('Invalid email');
-        $next = crm_url('login');
+        $next = crm_url('persona_auth_login');
         return;
     }
 
@@ -82,10 +82,10 @@ function command_persona_auth_login () {
 
     if ($valid) {
         user_login($user['cid']);
-        $next = crm_url();
+        $next = crm_url('user');
     } else {
         error_register('Error:' . $result->reason);
-        $next = crm_url('login');
+        $next = crm_url('persona_auth_login');
     }
 
     // Redirect to index
@@ -97,7 +97,6 @@ function command_persona_auth_login () {
 */
 function persona_auth_login_form () {
     $form = array(
-        'name' => 'persona_auth_login_form',
         'type' => 'form',
         'method' => 'post',
         'command' => 'persona_auth_login',
@@ -106,11 +105,6 @@ function persona_auth_login_form () {
                 'type' => 'fieldset',
                 'label' => 'Log in with Persona',
                 'fields' => array(
-                    array(
-                        'type' => 'hidden',
-                        'name' => 'assertion',
-                        'value' => ''
-                    ),
                     array(
                         'type' => 'text',
                         'label' => 'Email (your Persona ID)',
@@ -124,8 +118,11 @@ function persona_auth_login_form () {
                     )
                 )
             )
-        )
-    );
+        ),
+        'hidden' => array(
+                 'assertion' => NULL
+            )
+        );
     return $form;
 }
 
@@ -144,14 +141,15 @@ $persona_js = '<script src="https://login.persona.org/include.js"></script>';
 
 $navigator_js = "<script>
 navigator.id.watch({
+loggedInUser: null,
 onlogin: function (assertion) {
 var assertion_field = document.getElementsByName(\"assertion\")[0];
 assertion_field.value = assertion;
-var login_form = document.getElementsByName(\"persona_auth_login_form\")[0];
-//login_form.submit();
+var login_form = document.getElementsByName(\"command\")[0];
+login_form.submit();
 },
 onlogout: function () {
-//window.location = '?command=logout';
+window.location = '?command=logout';
 }
 });
 </script>";
@@ -161,6 +159,8 @@ var signinLink = document.getElementsByName('submitted')[0];
 if (signinLink) {
   signinLink.onclick = function() { navigator.id.request(); };
 }</script>";
+
+$body = "<p><a href=\"javascript:navigator.id.request()\"><span>Sign-in with your email</span></a></p>";
 
 /**
  * Page hook.  Adds ser module content to a page before it is rendered.
@@ -173,6 +173,7 @@ function persona_auth_page (&$page_data, $page_name, $options) {
     global $persona_js;
     global $navigator_js;
     global $signin_js;
+    global $body;
 
     switch ($page_name) {
 
@@ -180,6 +181,7 @@ function persona_auth_page (&$page_data, $page_name, $options) {
             page_add_content_top($page_data, $signin_js);
             page_add_content_top($page_data, $navigator_js);
             page_add_content_top($page_data, $persona_js);
+//            page_add_content_top($page_data, $body);
             page_add_content_top($page_data, theme('form', crm_get_form('persona_auth_login')));
             break;
     }
